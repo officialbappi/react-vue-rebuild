@@ -8,6 +8,7 @@ import WhatWeOffer from '../components/WhatWeOffer';
 import Choose from '../components/Choose';
 import TrendingTour from '../components/TrendingTour';
 import Event from '../components/Event';
+import VideoReels from '../components/VideoReels';
 import Testimonial from '../components/Testimonial';
 import Contact from '../components/Contact';
 
@@ -22,6 +23,7 @@ const Index = () => {
       <Choose />
       <TrendingTour />
       <Event />
+      <VideoReels />
       <Testimonial />
       <Contact />
     </div>

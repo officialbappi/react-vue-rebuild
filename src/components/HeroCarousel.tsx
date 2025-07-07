@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 
 const HeroCarousel = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
   const images = [
     "/img/beautiful-rainbow-nature.jpg",
     "/img/cascade-boat-clean-china-natural-rural.jpg",
@@ -11,54 +12,56 @@ const HeroCarousel = () => {
     "/img/vacation-stone-vietnam-fresh-green-china.jpg",
   ];
 
-  const [currentSlide, setCurrentSlide] = useState(0);
-
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % images.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [images.length]);
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden">
-      {/* Image Slides */}
-      {images.map((image, index) => (
-        <div
-          key={index}
-          className={`absolute top-0 left-0 w-full h-full transition-opacity duration-1000 ${
-            index === currentSlide ? 'opacity-100 z-10' : 'opacity-0'
-          }`}
-        >
-          <img
-            src={image}
-            alt="Slide"
-            className="w-full h-full object-cover animate-[zoomIn_5s_ease-in-out_infinite]"
-          />
-        </div>
-      ))}
-
-      {/* Text Overlay */}
-      <div className="absolute top-0 left-0 w-full h-full z-20 flex justify-center items-center text-center px-8">
-        <div className="w-4/5 max-w-4xl">
-          <p className="text-white font-['Jost'] font-medium uppercase text-lg md:text-xl mb-4">
-            Discover Northeast India
-          </p>
-          <h1 className="text-white font-['Cormorant_Garamond'] font-semibold text-4xl md:text-6xl lg:text-7xl leading-tight">
-            Journey Through Paradise
-          </h1>
+    <>
+      <style>
+        {`
+          @keyframes zoomIn {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.2); }
+          }
+        `}
+      </style>
+      <div className="relative w-full h-screen overflow-hidden">
+        {images.map((image, index) => (
+          <div
+            key={index}
+            className={`absolute top-0 left-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
+              index === currentSlide ? 'opacity-100 z-10' : 'opacity-0'
+            }`}
+          >
+            <img
+              src={image}
+              alt={`Slide ${index + 1}`}
+              className="w-full h-full object-cover"
+              style={{
+                animation: index === currentSlide ? 'zoomIn 5s ease-in-out infinite' : 'none'
+              }}
+            />
+          </div>
+        ))}
+        
+        {/* Text Overlay */}
+        <div className="absolute top-0 left-0 w-full h-full z-20 flex justify-center items-center text-center p-8">
+          <div className="max-w-4xl w-4/5">
+            <p className="text-white font-['Jost'] text-xl font-medium uppercase mb-4">
+              Explore Northeast India
+            </p>
+            <h1 className="text-white font-['Cormorant_Garamond'] text-6xl font-semibold leading-tight">
+              Discover Hidden Gems
+            </h1>
+          </div>
         </div>
       </div>
-
-      {/* Custom zoom animation */}
-      <style jsx>{`
-        @keyframes zoomIn {
-          0% { transform: scale(1); }
-          100% { transform: scale(1.2); }
-        }
-      `}</style>
-    </div>
+    </>
   );
 };
 
