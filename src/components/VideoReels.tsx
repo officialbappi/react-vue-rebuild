@@ -1,8 +1,10 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ArrowRight, Play } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { getReels } from '../services/reelsService';
 
 interface Video {
+  id?: string;
   src: string;
   title: string;
   description: string;
@@ -19,7 +21,13 @@ const VideoReels = () => {
   const autoScrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const videoRefs = useRef<{ [key: number]: HTMLVideoElement }>({});
 
-  const videos: Video[] = [
+  const { data: reelsData = [], isLoading, error } = useQuery({
+    queryKey: ['reels'],
+    queryFn: getReels,
+  });
+
+  // Fallback videos if no data from API
+  const fallbackVideos: Video[] = [
     {
       src: "/img/video1.mp4",
       title: "Cloudnine Serenity",
@@ -52,15 +60,20 @@ const VideoReels = () => {
       likes: "54K",
       isPlaying: false,
     },
-    {
-      src: "/img/video2.mp4",
-      title: "High on altitude, higher on energy",
-      description: "We create moments that turn into lifelong memories, because it's not just about the destination, it's about how you experience the journey.",
-      views: "1.8M views",
-      likes: "32K",
-      isPlaying: false,
-    },
   ];
+
+  // Transform API data to match Video interface
+  const videos: Video[] = error || reelsData.length === 0 
+    ? fallbackVideos 
+    : reelsData.map((reel: any) => ({
+        id: reel.id,
+        src: reel.videoUrl || reel.src,
+        title: reel.title,
+        description: reel.description,
+        views: reel.views || "0 views",
+        likes: reel.likes || "0",
+        isPlaying: false,
+      }));
 
   const gap = 24;
 
@@ -157,6 +170,19 @@ const VideoReels = () => {
     };
   }, [isAutoScrolling, visibleCards]);
 
+  if (isLoading) {
+    return (
+      <div className="bg-white min-h-screen font-['Jost'] py-8 px-4">
+        <div className="relative max-w-7xl mx-auto overflow-hidden rounded-3xl bg-white/10 backdrop-blur-sm p-8 shadow-2xl">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading video reels...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white min-h-screen font-['Jost'] py-8 px-4">
       <div className="relative max-w-7xl mx-auto overflow-hidden rounded-3xl bg-white/10 backdrop-blur-sm p-8 shadow-2xl">
@@ -209,7 +235,7 @@ const VideoReels = () => {
           >
             {videos.map((video, index) => (
               <div
-                key={index}
+                key={video.id || index}
                 className="relative min-w-[340px] aspect-[9/16] rounded-3xl overflow-hidden cursor-pointer transition-all duration-400 ease-out bg-gradient-to-br from-gray-800 to-blue-900 shadow-xl hover:transform hover:-translate-y-2 hover:scale-105 hover:shadow-2xl"
                 onClick={() => playVideo(index)}
               >
